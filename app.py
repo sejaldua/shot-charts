@@ -47,7 +47,7 @@ pid = get_player_id(PLAYER)
 print(pid)
 
 SEASONS = [f'{i}-{str(i+1)[2:]}' for i in range(2010, 2024)]
-SEASON = st.sidebar.selectbox('Select a season', SEASONS, index=len(SEASONS)-1)
+SEASON = st.sidebar.multiselect('Select a season', SEASONS)
 
 # Function to draw basketball court
 def create_court(ax, color):
@@ -81,6 +81,8 @@ def create_court(ax, color):
   ax.set_xlim(-250, 250)
   ax.set_ylim(0, 470)
   
+  return ax
+  
 def make_shot_chart(TEAM_ID, PLAYER_ID, SEASON):
     
     # GET THE DATA
@@ -100,24 +102,27 @@ def make_shot_chart(TEAM_ID, PLAYER_ID, SEASON):
     rows = relevant_data['rowSet']
     # Create pandas DataFrame
     shot_data = pd.DataFrame(rows)
-    shot_data.columns = headers
+    if shot_data.shape[0] == 0:
+        st.error('Sorry... this player has no data for the given season')
+    else:
+        shot_data.columns = headers
 
-    # General plot parameters
-    mpl.rcParams['font.family'] = 'Avenir'
-    mpl.rcParams['font.size'] = 14
-    mpl.rcParams['axes.linewidth'] = 2
+        # General plot parameters
+        mpl.rcParams['font.family'] = 'Avenir'
+        mpl.rcParams['font.size'] = 14
+        mpl.rcParams['axes.linewidth'] = 2
 
-    # Draw basketball court
-    fig = plt.figure(figsize=(4, 3.76))
-    ax = fig.add_axes([0, 0, 1, 1])
+        # Draw basketball court
+        fig = plt.figure(figsize=(4, 3.76))
+        ax = fig.add_axes([0, 0, 1, 1])
 
-    ax.hexbin(shot_data['LOC_X'], shot_data['LOC_Y'] + 60, gridsize=(30, 30), extent=(-300, 300, 0, 940), bins='log', cmap='Blues')
+        ax.hexbin(shot_data['LOC_X'], shot_data['LOC_Y'] + 60, gridsize=(30, 30), extent=(-300, 300, 0, 940), bins='log', cmap='Blues')
 
-    ax = create_court(ax, 'black')
+        ax = create_court(ax, 'black')
 
-    # ax.text(0, 1.05, 'LaMarcus Aldridge 2011-12 Regular Season', transform=ax.transAxes, ha='left', va='baseline')
+        ax.text(0, 1.05, f'{PLAYER} Shot Chart', transform=ax.transAxes, ha='left', va='baseline')
 
-    st.pyplot(fig)
+        st.pyplot(fig)
 
 
 
