@@ -49,25 +49,6 @@ print(pid)
 SEASONS = [f'{i}-{str(i+1)[2:]}' for i in range(2010, 2024)]
 SEASON = st.sidebar.selectbox('Select a season', SEASONS, index=len(SEASONS)-1)
 
-
-shot_json = shotchartdetail.ShotChartDetail(
-            team_id = tid, # team parameter
-            player_id = pid, # player parameter
-            context_measure_simple = 'PTS',
-            season_nullable = SEASON, # season parameter
-            season_type_all_star = 'Regular Season')
-
-# Load data into a Python dictionary
-shot_data = json.loads(shot_json.get_json())
-# Get the relevant data from our dictionary
-relevant_data = shot_data['resultSets'][0]
-# Get the headers and row data
-headers = relevant_data['headers']
-rows = relevant_data['rowSet']
-# Create pandas DataFrame
-shot_data = pd.DataFrame(rows)
-shot_data.columns = headers
-
 # Function to draw basketball court
 def create_court(ax, color):
 
@@ -99,6 +80,44 @@ def create_court(ax, color):
   # Set axis limits
   ax.set_xlim(-250, 250)
   ax.set_ylim(0, 470)
+  
+def make_shot_chart(TEAM_ID, PLAYER_ID, SEASON):
+    
+    # GET THE DATA
+    shot_json = shotchartdetail.ShotChartDetail(
+                team_id = TEAM_ID, # team parameter
+                player_id = PLAYER_ID, # player parameter
+                context_measure_simple = 'PTS',
+                season_nullable = SEASON, # season parameter
+                season_type_all_star = 'Regular Season')
+
+    # Load data into a Python dictionary
+    shot_data = json.loads(shot_json.get_json())
+    # Get the relevant data from our dictionary
+    relevant_data = shot_data['resultSets'][0]
+    # Get the headers and row data
+    headers = relevant_data['headers']
+    rows = relevant_data['rowSet']
+    # Create pandas DataFrame
+    shot_data = pd.DataFrame(rows)
+    shot_data.columns = headers
+
+    # General plot parameters
+    mpl.rcParams['font.family'] = 'Avenir'
+    mpl.rcParams['font.size'] = 14
+    mpl.rcParams['axes.linewidth'] = 2
+
+    # Draw basketball court
+    fig = plt.figure(figsize=(4, 3.76))
+    ax = fig.add_axes([0, 0, 1, 1])
+
+    ax.hexbin(shot_data['LOC_X'], shot_data['LOC_Y'] + 60, gridsize=(30, 30), extent=(-300, 300, 0, 940), bins='log', cmap='Blues')
+
+    ax = create_court(ax, 'black')
+
+    # ax.text(0, 1.05, 'LaMarcus Aldridge 2011-12 Regular Season', transform=ax.transAxes, ha='left', va='baseline')
+
+    st.pyplot(fig)
 
 
 
@@ -106,3 +125,4 @@ st.title('Shot Chart Visualization')
 
 st.write('Hello Polygence Pod!')
 
+make_shot_chart(tid, pid, SEASON)
