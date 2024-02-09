@@ -49,6 +49,8 @@ print(pid)
 SEASONS = [f'{i}-{str(i+1)[2:]}' for i in range(2010, 2024)]
 SEASON = st.sidebar.multiselect('Select a season', SEASONS)
 
+Clutch_Time = st.sidebar.checkbox('Clutch Time?')
+
 # Function to draw basketball court
 def create_court(ax, color):
 
@@ -84,6 +86,7 @@ def create_court(ax, color):
   return ax
   
 def make_shot_chart(TEAM_ID, PLAYER_ID, SEASON):
+    clutch_time = 'Last 5 Minutes' if Clutch_Time == 1 else None
     
     # GET THE DATA
     shot_json = shotchartdetail.ShotChartDetail(
@@ -91,7 +94,10 @@ def make_shot_chart(TEAM_ID, PLAYER_ID, SEASON):
                 player_id = PLAYER_ID, # player parameter
                 context_measure_simple = 'PTS',
                 season_nullable = SEASON, # season parameter
-                season_type_all_star = 'Regular Season')
+                season_type_all_star = 'Regular Season',
+                clutch_time_nullable = clutch_time
+                )
+    
 
     # Load data into a Python dictionary
     shot_data = json.loads(shot_json.get_json())
