@@ -49,14 +49,13 @@ print(pid)
 SEASONS = [f'{i}-{str(i+1)[2:]}' for i in range(2010, 2024)]
 SEASON = st.sidebar.selectbox('Select a season', SEASONS, index=len(SEASONS)-1)
 
-# Create JSON request
-# Create JSON request
-# shot_json = shotchartdetail.ShotChartDetail(
-#             team_id = tid,
-#             player_id = pid,
-#             context_measure_simple = 'PTS',
-#             season_nullable = '2011-12',
-#             season_type_all_star = 'Regular Season')
+
+shot_json = shotchartdetail.ShotChartDetail(
+            team_id = tid, # team parameter
+            player_id = pid, # player parameter
+            context_measure_simple = 'PTS',
+            season_nullable = SEASON, # season parameter
+            season_type_all_star = 'Regular Season')
 
 # Load data into a Python dictionary
 shot_data = json.loads(shot_json.get_json())
@@ -69,7 +68,39 @@ rows = relevant_data['rowSet']
 shot_data = pd.DataFrame(rows)
 shot_data.columns = headers
 
-st.dataframe(shot_data)
+# Function to draw basketball court
+def create_court(ax, color):
+
+  # Short corner 3PT lines
+  ax.plot([-220, -220], [0, 140], linewidth=2, color=color)
+  ax.plot([220, 220], [0, 140], linewidth=2, color=color)
+
+  # 3PT Arc
+  ax.add_artist(mpl.patches.Arc((0, 140), 440, 315, theta1=0, theta2=180, facecolor='none', edgecolor=color, lw=2))
+
+  # Lane and Key
+  ax.plot([-80, -80], [0, 190], linewidth=2, color=color)
+  ax.plot([80, 80], [0, 190], linewidth=2, color=color)
+  ax.plot([-60, -60], [0, 190], linewidth=2, color=color)
+  ax.plot([60, 60], [0, 190], linewidth=2, color=color)
+  ax.plot([-80, 80], [190, 190], linewidth=2, color=color)
+  ax.add_artist(mpl.patches.Circle((0, 190), 60, facecolor='none', edgecolor=color, lw=2))
+
+  # Rim
+  ax.add_artist(mpl.patches.Circle((0, 60), 15, facecolor='none', edgecolor=color, lw=2))
+
+  # Backboard
+  ax.plot([-30, 30], [40, 40], linewidth=2, color=color)
+
+  # Remove ticks
+  ax.set_xticks([])
+  ax.set_yticks([])
+
+  # Set axis limits
+  ax.set_xlim(-250, 250)
+  ax.set_ylim(0, 470)
+
+
 
 st.title('Shot Chart Visualization')
 
