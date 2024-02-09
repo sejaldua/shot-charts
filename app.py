@@ -21,7 +21,6 @@ team_list = team_df['teamName'].to_list()
 
 # Get team ID based on team name
 def get_team_id(t):
-    print(t)
     for team in teams:
         if team['teamName'] == t:
             return team['teamId']
@@ -31,21 +30,18 @@ def get_team_id(t):
 def get_player_id(name):
     for player in players:
         if (player['firstName'] + ' ' + player['lastName']) == name:
-            print('found player')
             return player['playerId']
     return -1
 
-
-
+# Allow user to select team
 TEAM = st.sidebar.selectbox('Select a team', team_list)
-tid = get_team_id(TEAM)
+TEAM_ID = get_team_id(TEAM)
 
-print(player_df[player_df['teamId'] == tid]['playerName'].to_list())
-PLAYER = st.sidebar.selectbox('Select a player', player_df[player_df['teamId'] == tid]['playerName'].to_list())
-print(PLAYER)
-pid = get_player_id(PLAYER)
-print(pid)
+# Allow user to select player
+PLAYER = st.sidebar.selectbox('Select a player', player_df[player_df['teamId'] == TEAM_ID]['playerName'].to_list())
+PLAYER_ID = get_player_id(PLAYER)
 
+# Allow user to select season
 SEASONS = [f'{i}-{str(i+1)[2:]}' for i in range(2010, 2024)]
 SEASON = st.sidebar.multiselect('Select a season', SEASONS)
 
@@ -136,4 +132,4 @@ st.title('Shot Chart Visualization')
 
 st.write('Hello Polygence Pod!')
 
-make_shot_chart(tid, pid, SEASON)
+make_shot_chart(TEAM_ID, PLAYER_ID, SEASON)
